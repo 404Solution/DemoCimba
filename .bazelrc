@@ -1,0 +1,5 @@
+build --cxxopt='-std=c++17'
+build --verbose_failures
+test --test_output=errors
+build --disk_cache=~/.cache/bazel
+test --cache_test_results=yes
