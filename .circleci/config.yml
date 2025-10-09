@@ -24,13 +24,6 @@ jobs:
     steps:
       - checkout
       - install_bazel
-      - run:
-          name: Package artifacts
-          command: |
-            ./scripts/package_artifacts.sh
-      - store_artifacts:
-          path: dist/artifacts.tar.gz
-          destination: artifacts/artifacts.tar.gz
 
 workflows:
   bazel_ci:
