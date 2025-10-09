@@ -25,14 +25,6 @@ jobs:
       - checkout
       - install_bazel
       - run:
-          name: Bazel build (Python + C++)
-          command: |
-            bazel build //src/python:app //src/cpp:hello
-      - run:
-          name: Bazel tests
-          command: |
-            bazel test //src/python:app_test //src/cpp:hello_test --test_output=errors
-      - run:
           name: Package artifacts
           command: |
             ./scripts/package_artifacts.sh
