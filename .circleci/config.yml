@@ -1,19 +1,61 @@
 version: 2.1
 
-jobs:
-  build:
+orbs:
+executors:
+  py_cimg:
     docker:
       - image: cimg/python:3.11
+  base_cimg:
+    docker:
+      - image: cimg/base:stable
+
+commands:
+  install_bazel:
+    description: "Install Bazel"
+    steps:
+      - run:
+          name: Install Bazel
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y curl gnupg apt-transport-https
+            curl -fsSL https://bazel.build/bazel-release.pub.gpg | sudo gpg --dearmor -o /usr/share/keyrings/bazel-archive-keyring.gpg
+            echo "deb [signed-by=/usr/share/keyrings/bazel-archive-keyring.gpg] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
+            sudo apt-get update && sudo apt-get install -y bazel
+
+jobs:
+  build_and_test:
+    executor: py_cimg
     steps:
       - checkout
+      - install_bazel
       - run:
-          name: Install dependencies
-          command: pip install pytest
+          name: Bazel build (Python + C++)
+          command: |
+            bazel build //src/python:app //src/cpp:hello_lib
       - run:
-          name: Run tests
-          command: pytest tests/
+          name: Bazel tests
+          command: |
+            bazel test //src/python:app_test //src/cpp:hello_test --test_output=errors
+      - run:
+          name: Package artifacts
+          command: |
+            chmod +x scripts/package_artifacts.sh
+            ./scripts/package_artifacts.sh
+      - store_artifacts:
+          path: dist/artifacts.tar.gz
+          destination: artifacts/artifacts.tar.gz
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist/artifacts.tar.gz
 
 workflows:
-  build_and_test:
+  bazel_ci:
     jobs:
-      - build
+      - build_and_test
+      - publish_jfrog:
+          requires:
+            - build_and_test
+          filters:
+            branches:
+              only: main
