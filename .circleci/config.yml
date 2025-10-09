@@ -27,11 +27,11 @@ jobs:
       - run:
           name: Bazel build (Python + C++)
           command: |
-            bazel build //src/python:app //src/cpp:hello_lib
+            bazel build ../src/python:app src/cpp:hello_lib
       - run:
           name: Bazel tests
           command: |
-            bazel test //src/python:app_test //src/cpp:hello_test --test_output=errors
+            bazel test ../src/python:app_test src/cpp:hello_test --test_output=errors
       - run:
           name: Package artifacts
           command: |
@@ -40,17 +40,6 @@ jobs:
       - store_artifacts:
           path: dist/artifacts.tar.gz
           destination: artifacts/artifacts.tar.gz
-      - run:
-          name: Publish to JFrog (only on main and if env vars exist)
-          command: |
-            if [ "${CIRCLE_BRANCH}" = "main" ] && [ -n "${JFROG_URL:-}" ] && [ -n "${JFROG_USER:-}" ] && [ -n "${JFROG_API_KEY:-}" ]; then
-              echo "Publishing to JFrog..."
-              curl -u "$JFROG_USER:$JFROG_API_KEY" \
-                   -T dist/artifacts.tar.gz \
-                   "https://${JFROG_URL}/artifactory/libs-release-local/sample/artifacts-$(date +%Y%m%d%H%M%S).tar.gz"
-            else
-              echo "Skip publish (not main branch or env vars missing)."
-            fi
 
 workflows:
   bazel_ci:
