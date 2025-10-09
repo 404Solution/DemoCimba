@@ -27,15 +27,14 @@ jobs:
       - run:
           name: Bazel build (Python + C++)
           command: |
-            bazel build ../src/python:app src/cpp:hello_lib
+            bazel build //src/python:app //src/cpp:hello
       - run:
           name: Bazel tests
           command: |
-            bazel test ../src/python:app_test src/cpp:hello_test --test_output=errors
+            bazel test //src/python:app_test //src/cpp:hello_test --test_output=errors
       - run:
           name: Package artifacts
           command: |
-            chmod +x scripts/package_artifacts.sh
             ./scripts/package_artifacts.sh
       - store_artifacts:
           path: dist/artifacts.tar.gz
