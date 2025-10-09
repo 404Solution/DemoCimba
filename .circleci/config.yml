@@ -53,7 +53,6 @@ workflows:
   bazel_ci:
     jobs:
       - build_and_test
-      - publish_jfrog:
           requires:
             - build_and_test
           filters:
