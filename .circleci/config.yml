@@ -19,7 +19,7 @@ commands:
             sudo apt-get update && sudo apt-get install -y bazel
 
 jobs:
-  build_test_and_maybe_publish:
+  build_test:
     executor: py_cimg
     steps:
       - checkout
